@@ -1,10 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Evergreen Investigation Console · The Daily Bias</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230F4633'/%3E%3Cpath d='M16 6l8 10-8 10-8-10z' fill='%23A8D5B0'/%3E%3C/svg%3E" />
+<title>The Daily Bias · Investigation Console</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='5' fill='%2304070A'/%3E%3Cpath d='M16 6l8 10-8 10-8-10z' fill='%2300FF9C'/%3E%3C/svg%3E" />
+<script>
+  /* theme before first paint: ?theme= wins, then the remembered choice, else dark */
+  (function(){
+    try{
+      var q = new URLSearchParams(location.search).get("theme");
+      var t = q || localStorage.getItem("desk-theme") || "dark";
+      if (t !== "light" && t !== "dark") t = "dark";
+      document.documentElement.dataset.theme = t;
+      localStorage.setItem("desk-theme", t);
+    }catch(e){}
+  })();
+</script>
 <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
@@ -19,12 +31,15 @@
   <div class="mote" style="left:58vw;animation-delay:-15s"></div>
   <div class="mote" style="left:76vw;animation-delay:-6s"></div>
   <div class="mote" style="left:88vw;animation-delay:-19s"></div>
+  <div class="crt"></div>
+  <div class="roll"></div>
+  <div class="vig"></div>
   <div class="grain"></div>
 </div>
 
 <div id="boot"><div class="inner">
   <div class="mark"></div>
-  <div class="name">Evergreen Console</div>
+  <div class="name">Investigation Console</div>
   <div class="log"></div>
   <div class="bar"><i></i></div>
 </div></div>
@@ -32,7 +47,7 @@
 <div id="pal"><div class="box">
   <input type="text" placeholder="jump to a page, instrument, agent or action…" />
   <div class="res"></div>
-  <div class="hintbar">↑↓ navigate · ⏎ run · esc close · ⌘K toggles · 1–7 pages · r refresh</div>
+  <div class="hintbar">↑↓ navigate · ⏎ run · esc close · ⌘K toggles · 1–7 pages · t theme · r refresh</div>
 </div></div>
 
 <div class="shell">
@@ -40,12 +55,19 @@
     <div class="top-in">
       <div class="brand">
         <div class="sigil"><i></i><b></b></div>
-        <div><h1>The Daily Bias · Investigation Console</h1><p id="date">—</p></div>
+        <div>
+          <h1 class="glitch" data-t="The Daily Bias · Console">The Daily Bias · Console</h1>
+          <p id="date">—</p>
+        </div>
       </div>
       <div class="hstats">
         <span class="chip" id="chip-sess"><span class="dot grey"></span><span>—</span></span>
         <span class="chip" id="fresh"><span class="dot grey"></span><span>boot</span></span>
         <span class="chip cy" id="streamchip">—</span>
+        <button class="themesw" id="themesw" title="switch theme (t)">
+          <span id="themelab">dark</span>
+          <span class="knob"><b></b></span>
+        </button>
         <div class="clock"><span>IST</span><b id="ist">--:--:--</b></div>
         <div class="clock et"><span>ET</span><b id="et">--:--:--</b></div>
       </div>
@@ -61,7 +83,7 @@
     </nav>
   </header>
 
-  <div class="tape"><div class="inner" id="tape"></div></div>
+  <div class="tape"><div class="track" id="tape"></div></div>
 
   <main>
     <section class="page on" id="p-command"></section>
@@ -75,8 +97,9 @@
 
   <footer>
     <span id="gen">—</span>
+    <span id="stats">—</span>
     <span class="kill" id="kz"></span>
-    <span style="margin-left:auto">⌘K palette · 1–7 pages · r refresh · live push via SSE · reads ~/workspace/desk state · localhost only</span>
+    <span style="margin-left:auto">⌘K palette · 1–7 pages · t theme · r refresh · SSE push · localhost only</span>
   </footer>
 </div>
 

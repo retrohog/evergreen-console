@@ -43,19 +43,34 @@ deep links (`/#structure`, `/#flow`) work.
 | 06 | **Flow** | the desk as a **pipeline** (scan → wire → build → arm → post → journal → learn), agent roster with health/cadence, **job × hour run heatmap**, and a live run feed |
 | 07 | **System** | cron desk with delivery outcomes, agent pulse (ticker beat, tokens), state-file freshness bars, 36h desk churn, doctrine |
 
-## Design language
+## Design language — two themes, one switch
 
-Evergreen investigation console — a **light forest** palette instead of the usual dark dashboard:
+Press **`t`** (or the header switch, or `?theme=light|dark`) to flip between:
 
-- misty sage page, contour-line topology and a slow canopy drift with warm sun and floating motes
-- paper panels: hairline moss borders, **HUD corner brackets**, layered soft shadows, hover lift
-- pine `#0F4633` → forest `#2A6A4D` → fern greens for structure and positive data,
-  clay `#B4462F` for invalidation, sun `#C08A2A` for volume levels, teal `#2A7F8F` for telemetry
-- mono tabular numerals everywhere; uppercase micro-labels; boot sequence; live ticker tape
+- **`dark` — cyberpunk terminal (default)**: near-black `#04070A`, phosphor `#00FF9C` + cyan `#22D3EE`
+  + magenta, CRT scanline overlay with a rolling band, perspective circuit floor, chamfered
+  (clipped) panel corners, neon glow on numerals, glitch-split title on hover, terminal boot with
+  a typing cursor, blinking block cursors in outputs.
+- **`light` — evergreen forest**: misty sage page, contour-line topology, canopy drift, warm sun,
+  paper panels with hairline moss borders and layered soft shadows.
+
+Both themes share every component; only tokens change (`[data-theme]` on `<html>`), so a switch
+repaints without re-laying-out. Motion is CSS-driven and `prefers-reduced-motion` is respected.
+
+**Interaction layer**: magnetic tiles that tilt toward the cursor with a sheen, buttons that draw
+their own corner brackets and sweep a highlight, click ripples, `⌘K` palette, live-flash on value
+changes, count-up numerals, animated rings and pipeline ribbons.
+
+**Visualisation set** (all drawn from real state, no library): price ladders, HTF→LTF structure map,
+**ATR zone dial** (concentric rounds + zone arcs by timeframe), candlestick tape with zone overlays,
+equity curve, R histogram **with a KDE density overlay**, MFE/MAE scatter, **polar clock of R by
+hour**, **evidence radar** (six-axis quality polygon with a threshold ghost), **squarified treemap**
+of desk churn, **pipeline ribbons** whose thickness = runs, **LED run matrix** (job × hour),
+bullet charts for R vs target, rings, sparklines.
 
 Borrowed deliberately: incident-investigation **evidence/attack-story** framing, automation-builder
-**pipeline canvas** with flowing connectors, agent-observability **rosters + run heatmaps**,
-and crypto-terminal **asset sparklines + live feed**.
+**pipeline canvas**, agent-observability **rosters + run heatmaps**, crypto-terminal **sparklines +
+live feed** — plus the motion vocabulary from [recent.design](https://recent.design).
 
 ## Architecture
 
@@ -106,6 +121,13 @@ than 500ing the board.
   references; far 4H swings squash live zones into slivers.
 - **Deep links**: set the initial page from `location.hash` before first render, or `#edge` opens
   the default page.
+- **Never rewrite an animated element on a timer.** The ticker froze because the 1 Hz clock refresh
+  also re-set the marquee's `innerHTML`, restarting its CSS animation every second. Fix: render the
+  tape only when its content signature changes, drive it with one GPU `translate3d` loop over two
+  identical halves, and keep the per-second loop to *text nodes only* (clocks, countdowns, chips).
+  The footer exposes `renders · tape writes · refetch · push` so this class of bug is visible.
+- **Canvas colour comes from CSS variables**, so a theme switch must repaint: register each draw in
+  a list and re-run it after the theme flips (and on resize/visibilitychange).
 
 ## License
 
