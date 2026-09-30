@@ -1482,7 +1482,7 @@ function wireDock() {
   });
   d.querySelectorAll(".di").forEach(x =>
     x.classList.toggle("act", x.dataset.act === "theme" && theme() === "light"));
-  glassFX(d);
+  glassFX(document);          /* the dock itself is .lg — wire it too, not just its children */
 }
 
 async function tick(full = true) {
