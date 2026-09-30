@@ -734,6 +734,8 @@ def build_state() -> dict:
         "pulse": agent_pulse(),
         "econ": econ(),
         "tape": tape(),
+        "achievements": achievements(),
+        "media": assets_manifest(),
         "files": {
             "playbook.json": age_min(DESK / "playbook.json"),
             "jobs.json": age_min(DESK / "jobs.json"),
@@ -972,6 +974,89 @@ def topic_hashes() -> dict:
     return out
 
 
+ACH_ASSETS = {".png": "image/png", ".gif": "image/gif", ".svg": "image/svg+xml",
+              ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp", ".avif": "image/avif"}
+
+
+def assets_manifest() -> list[dict]:
+    """Images/GIFs in board/assets — anything the user drops in shows up on the board."""
+    out = []
+    d = BOARD / "assets"
+    if not d.is_dir():
+        return out
+    for f in sorted(d.iterdir()):
+        if not f.is_file() or f.suffix.lower() not in ACH_ASSETS:
+            continue
+        try:
+            st = f.stat()
+        except Exception:
+            continue
+        out.append({"url": f"/assets/{f.name}", "name": f.name, "kind": f.suffix.lower().lstrip("."),
+                    "kb": round(st.st_size / 1024, 1), "age_min": age_min(f)})
+    return out
+
+
+def _ach(aid, name, desc, glyph, tier, value, target, meta) -> dict:
+    return {"id": aid, "name": name, "desc": desc, "glyph": glyph, "tier": tier,
+            "value": round(float(value), 2), "target": target,
+            "pct": max(0, min(100, round(100 * value / target))) if target else 0,
+            "unlocked": value >= target, "meta": meta}
+
+
+def achievements() -> list[dict]:
+    """Real earned/locked state — every number traces to a desk file."""
+    c = calls().get("stats", {})
+    p = paper()
+    e = edge()
+    st = structure()
+    cr = crons()
+    act = activity()
+    ev = econ()
+    pl = playbook()
+    doc = doctrine()
+
+    zones_open = sum(1 for i in st for z in (i.get("zones") or []) if z.get("state") == "open")
+    strong_clusters = sum(1 for i in st for cl in (i.get("clusters") or []) if cl.get("score", 0) >= 3)
+    clean_jobs = sum(1 for j in cr if not j.get("failure_streak"))
+    risk_open = sum((s.get("risk_usd") or 0) for i in pl for s in (i.get("setups") or [])
+                    if (s.get("dist_atr") or 99) < 2.5)
+    kill_trades = sum(1 for r in (p.get("rows") or [])
+                      if r.get("hour_et") is not None and (r["hour_et"] >= 20 or r["hour_et"] <= 2))
+
+    return [
+        _ach("first_blood", "FIRST BLOOD", "Log a win in the call journal", "◉", "bronze",
+             c.get("win", 0), 1, f"{c.get('win', 0)}W / {c.get('loss', 0)}L today"),
+        _ach("sharpshooter", "SHARPSHOOTER", "Paper hit rate ≥ 60% over 5+ resolutions", "✶", "silver",
+             (p.get("win_rate") or 0) if (p.get("resolved") or 0) >= 5 else 0, 60,
+             f"{p.get('win_rate') or 0}% over {p.get('resolved') or 0} resolved"),
+        _ach("zone_cartographer", "ZONE CARTOGRAPHER", "Keep 30+ live POIs mapped", "▦", "silver",
+             zones_open, 30, f"{zones_open} open FVG/OB zones"),
+        _ach("confluence_hunter", "CONFLUENCE HUNTER", "Stack 3+ high-score confluence clusters", "◎", "gold",
+             strong_clusters, 3, f"{strong_clusters} clusters at score ≥ 3"),
+        _ach("edge_keeper", "EDGE KEEPER", "Backtest book in profit (+R) over 50+ trades", "▲", "gold",
+             e.get("sum_r", 0) if (e.get("n") or 0) >= 50 else 0, 1,
+             f"{nf_(e.get('sum_r'))}R over {e.get('n', 0)} trades"),
+        _ach("guardrail", "GUARDRAIL", "Every scheduled job clean — no failure streaks", "⛨", "silver",
+             clean_jobs, max(1, len(cr)), f"{clean_jobs}/{len(cr)} jobs clean"),
+        _ach("prop_discipline", "PROP DISCIPLINE", "Stay inside 3 calls per session", "⏣", "gold",
+             3 if (c.get("count") or 0) <= 3 else 0, 3, f"{c.get('count', 0)} calls logged today"),
+        _ach("risk_capped", "RISK CAPPED", "Armed risk under the $300 daily stop", "⊖", "gold",
+             300 if risk_open <= 300 else 0, 300, f"${round(risk_open)} armed right now"),
+        _ach("night_shift", "NIGHT SHIFT", "Trade the Asia killzone (20:00–02:00 ET)", "☾", "bronze",
+             kill_trades, 1, f"{kill_trades} paper trades in the Asia window"),
+        _ach("signal_watcher", "SIGNAL WATCHER", "Track 4+ upcoming releases on the wire", "⌁", "bronze",
+             len(ev), 4, f"{len(ev)} releases queued"),
+        _ach("deep_work", "DEEP WORK", "Touch 10+ desk artefacts in 36h", "✎", "silver",
+             len(act), 10, f"{len(act)} files churned"),
+        _ach("doctrine_keeper", "DOCTRINE KEEPER", "Constitution parsed and enforced", "⌘", "bronze",
+             len(doc.get("lines") or []), 8, f"{len(doc.get('lines') or [])} rules live"),
+    ]
+
+
+def nf_(v):
+    return round(v, 2) if isinstance(v, (int, float)) else v
+
+
 def snapshot_html() -> str:
     """Single self-contained HTML file: CSS + JS + the current data inlined (no server needed)."""
     html = (BOARD / "index.html").read_text()
@@ -991,6 +1076,17 @@ def snapshot_html() -> str:
         f"<script>window.__SNAP = {json.dumps(data, default=str)};</script>\n"
         f"<script>\n{js}\n</script>\n"
     )
+    # assets travel with the snapshot: swap every /assets/<file> reference for a data URI
+    import base64
+    adir = BOARD / "assets"
+    if adir.is_dir():
+        for f in adir.iterdir():
+            if not f.is_file() or f.suffix.lower() not in ACH_ASSETS:
+                continue
+            mime = ACH_ASSETS[f.suffix.lower()]
+            b64 = base64.b64encode(f.read_bytes()).decode()
+            inline = inline.replace(f'"/assets/{f.name}"', f'"data:{mime};base64,{b64}"')
+            html = html.replace(f'"/assets/{f.name}"', f'"data:{mime};base64,{b64}"')
     html = html.replace('<link rel="stylesheet" href="/styles.css" />', "")
     html = html.replace('<script src="/app.js"></script>', inline)
     stamp = datetime.now(IST).strftime("%Y-%m-%d %H:%M:%S IST")
@@ -1079,6 +1175,18 @@ class Handler(BaseHTTPRequestHandler):
             return
         if path == "/health":
             self._send(b'{"status":"ok"}', "application/json")
+            return
+        if path.startswith("/assets/"):
+            name = path[len("/assets/"):]
+            if not re.fullmatch(r"[A-Za-z0-9._-]{1,80}", name or ""):
+                self._send(b"404", "text/plain", 404)
+                return
+            f = BOARD / "assets" / name
+            ctype = ACH_ASSETS.get(f.suffix.lower())
+            if not ctype or not f.is_file():
+                self._send(b"404", "text/plain", 404)
+                return
+            self._send(f.read_bytes(), ctype)
             return
         if path == "/snapshot.html":
             try:

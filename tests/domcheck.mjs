@@ -101,6 +101,19 @@ const balance = html => {
   return { divOpen: open, divClose: close, secOpen: so, secClose: sc, tableOpen: to, tableClose: tc, trOpen: lo, trClose: lc };
 };
 
+/* v5 panels: assert the new blocks really rendered (counts, not vibes) */
+const count = (html, re) => (html.match(re) || []).length;
+const EXPECT = {
+  command: {
+    ach: h => count(h, /class="ach /g),
+    holo: h => /class="hud holo"/.test(h) && /id="holo-title"/.test(h) ? 1 : 0,
+    dedsec: h => /class="dedsec lg"/.test(h) ? 1 : 0,
+    min: { ach: 6, holo: 1, dedsec: 1 },
+  },
+  journal: { books: h => count(h, /class="book /g), min: { books: 1 } },
+  system: { media: h => count(h, /class="mcard"/g), min: { media: 1 } },
+};
+
 let failures = 0;
 console.log(`audit vs ${BASE} · data keys: ${Object.keys(snap).length} · state loaded: ${dataLoaded}\n`);
 for (const page of PAGES) {
@@ -117,6 +130,15 @@ for (const page of PAGES) {
   const d0 = stats.draws || 0, e0 = stats.drawErr || 0;
   const errs = RENDER_ERRORS.filter(e => !/EventSource|fetch/i.test(e));
   const problems = [];
+  const exp = EXPECT[page];
+  let panelReport = "";
+  if (exp) {
+    const got = {};
+    for (const k of Object.keys(exp.min)) got[k] = exp[k](pageHtml);
+    panelReport = Object.entries(got).map(([k, v]) => `${k} ${v}`).join(" · ");
+    for (const [k, min] of Object.entries(exp.min))
+      if (got[k] < min) problems.push(`${k} ${got[k]} < ${min}`);
+  }
   if (/render error/.test(pageHtml)) problems.push("render-error block");
   if (b.divOpen !== b.divClose) problems.push(`div ${b.divOpen}/${b.divClose}`);
   if (b.tableOpen !== b.tableClose) problems.push(`table ${b.tableOpen}/${b.tableClose}`);
@@ -127,7 +149,7 @@ for (const page of PAGES) {
   if (errs.length) problems.push("errors: " + errs.slice(0, 2).join("; "));
   const status = problems.length ? "✗" : "✓";
   if (problems.length) failures++;
-  console.log(`${status} ${page.padEnd(10)} ${String(pageHtml.length).padStart(6)} chars · canvases ${uniq.length} [${uniq.join(",").slice(0, 60)}] · draws ${d0}${e0 ? ` drawErr ${e0}` : ""} ${problems.length ? "· " + problems.join(" · ") : ""}`);
+  console.log(`${status} ${page.padEnd(10)} ${String(pageHtml.length).padStart(6)} chars · canvases ${uniq.length} [${uniq.join(",").slice(0, 60)}] · draws ${d0}${e0 ? ` drawErr ${e0}` : ""}${panelReport ? " · " + panelReport : ""} ${problems.length ? "· " + problems.join(" · ") : ""}`);
 }
 console.log(failures ? `\n${failures} page(s) with problems` : "\nall pages structurally sound");
 process.exit(failures ? 1 : 0);

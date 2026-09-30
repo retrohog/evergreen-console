@@ -96,6 +96,52 @@ function wireButtons(root = document) {
     });
   });
 }
+/* liquid-glass specular highlight follows the pointer */
+function glassFX(root = document) {
+  root.querySelectorAll(".lg:not([data-lg])").forEach(el => {
+    el.dataset.lg = "1";
+    el.addEventListener("pointermove", e => {
+      const r = el.getBoundingClientRect();
+      el.style.setProperty("--mx", ((e.clientX - r.left) / r.width * 100).toFixed(1) + "%");
+      el.style.setProperty("--my", ((e.clientY - r.top) / r.height * 100).toFixed(1) + "%");
+    });
+  });
+}
+/* holographic foil: pointer drives foil offset, glare angle and a small tilt */
+function holoFX(root = document) {
+  root.querySelectorAll(".holo:not([data-holo])").forEach(el => {
+    el.dataset.holo = "1";
+    el.addEventListener("pointermove", e => {
+      const r = el.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+      el.style.setProperty("--hx", (x * 100).toFixed(1) + "%");
+      el.style.setProperty("--hy", (y * 100).toFixed(1) + "%");
+      el.style.setProperty("--ang", (Math.atan2(y - .5, x - .5) * 180 / Math.PI + 90).toFixed(0));
+      el.style.transform = `perspective(820px) rotateY(${(x - .5) * 7}deg) rotateX(${-(y - .5) * 7}deg) translateY(-2px)`;
+    });
+    el.addEventListener("pointerleave", () => { el.style.transform = ""; });
+  });
+}
+/* terminal glyph scramble — frame-counted so it always terminates */
+function scramble(el, final, frames = 14) {
+  if (!el) return;
+  const glyphs = "▓▒░#@$%&/\\|<>*+=—_01";
+  let i = 0;
+  const step = () => {
+    const p = ++i / frames;
+    let out = "";
+    for (let c = 0; c < final.length; c++) {
+      out += (p * 1.7 * final.length > c) ? final[c] : (final[c] === " " ? " " : glyphs[(Math.random() * glyphs.length) | 0]);
+    }
+    el.textContent = out;
+    if (i < frames) requestAnimationFrame(step); else el.textContent = final;
+  };
+  requestAnimationFrame(step);
+}
+/* one pass over a freshly rendered subtree */
+function wireFX(root = document) {
+  magnetize(root); wireButtons(root); glassFX(root); holoFX(root);
+}
 
 /* ---------------------------------------------------------------- canvas utils */
 const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
@@ -514,6 +560,44 @@ function tile(lab, v, sub, cls = "", extra = "", k = "") {
   return `<div class="hud tile magnet ${cls}"><span class="sheen"></span><div class="lab">${lab}</div>
     <div class="v" data-k="${k || lab}" data-v="${esc(v)}">${v}</div><div class="sub">${sub}</div>${extra}</div>`;
 }
+function achCard(a) {
+  return `<div class="ach ${a.unlocked ? "unlocked" : ""}">
+    <span class="tier ${esc(a.tier)}">${esc(a.tier)}</span>
+    <div class="medal">${esc(a.glyph)}</div>
+    <div class="meta">
+      <div class="nm">${esc(a.name)}</div>
+      <div class="ds">${esc(a.desc)}</div>
+      <div class="bar"><i style="width:${a.pct}%"></i></div>
+      <div class="val">${esc(a.meta)} · ${a.pct}%${a.unlocked ? " · unlocked" : ""}</div>
+    </div></div>`;
+}
+function achGrid(list) {
+  if (!list || !list.length) return '<div class="empty">no achievement data</div>';
+  return `<div class="achgrid">${list.map(achCard).join("")}</div>`;
+}
+function bookCard(r, i, day) {
+  const cls = r.outcome === "win" ? "win" : r.outcome === "loss" ? "loss" : "";
+  const oc = String(r.outcome || "open").slice(0, 4).toUpperCase();
+  return `<div class="book ${cls}" title="${esc(r.job || "")} · ${esc(r.outcome || "")}">
+    <span class="foilbook"></span>
+    <span class="vol">vol ${String(i + 1).padStart(2, "0")} · ${esc(String(r.key || "—").toUpperCase())}</span>
+    <div class="kicker">${esc(day || "desk file")}</div>
+    <h4>${esc(String(r.job || "call").replace(/[-_]+/g, " "))}</h4>
+    <div class="sub">${esc(r.kind || "setup")}</div>
+    <div class="rule"></div>
+    <div class="rows">
+      <div>entry <b>${nf(r.entry, 1)}</b> · stop <b>${nf(r.stop, 1)}</b></div>
+      <div>risk <b>${nf(r.risk, 1)}pt</b>${S_usd(r) ? ` <b>${S_usd(r)}</b>` : ""}</div>
+      <div>targets <b>${tpsOf(r.entry, r.risk, r.tps)}</b></div>
+    </div>
+    <div class="foot">
+      <span class="badge ${gradeCls(r.grade)}">${esc(r.grade || "—")}</span>
+      <span class="badge ${biasCls(r.bias)}">${esc(String(r.bias || "").toUpperCase())}</span>
+      <span class="grade ${r.outcome === "win" ? "pos" : r.outcome === "loss" ? "neg" : ""}" style="margin-left:auto">${esc(oc)}</span>
+    </div></div>`;
+}
+const S_usd = r => (D.state?.usd_per_pt?.[r.key] && r.risk != null)
+  ? "$" + nf(r.risk * D.state.usd_per_pt[r.key], 0) : "";
 function ladder(inst, s) {
   const pts = [];
   (s.tps || []).forEach(t => t.price != null && pts.push(t.price));
@@ -602,8 +686,23 @@ function pCommand() {
   const mgc = (D.series.mgc || {}).bars || [], nq = (D.series.nq || {}).bars || [];
   const closes = b => b.map(r => r[4]);
   const best = ((S.playbook || [])[0] || {}).setups?.[0] || {};
+  const b0 = (S.playbook || [])[0] || {};
+  const ach = S.achievements || [];
+  const achUn = ach.filter(a => a.unlocked).length;
+  const zonesOpen = (S.structure || []).reduce((n, i) => n + (i.zones || []).filter(z => z.state === "open").length, 0);
+  const dedLine = `> ops ${c.count ?? 0} calls · ${zonesOpen} zones mapped · ${achUn}/${ach.length} badges · heartbeat ${beatWord(pu.heartbeat_age_s)} · next job ${nxt ? hms(nxt.next_in_s) : "—"}`;
+  const holoTitle = best.grade ? `${b0.name || "SETUP"} ${String(best.bias || "").toUpperCase()}` : "NO SETUP ARMED";
 
   $("#p-command").innerHTML = `
+  <div class="dedsec lg" style="margin-bottom:15px"><span class="frost"></span><span class="spec"></span>
+    <img src="/assets/mask.svg" alt="desk mark">
+    <div class="txt">
+      <div class="l1 glitchy" data-t="the daily bias · desk ops">the daily bias · desk ops</div>
+      <div class="l2" id="dedsec-line">${esc(dedLine)}</div>
+    </div>
+    <span class="badge ${hot ? "long" : "neutral"}">${hot ? "kz live" : "standby"}</span>
+    <span class="badge neutral">${esc(S.ist_date)}</span>
+  </div>
   <div class="hero">
     <div class="hud tile magnet" style="grid-column:span 2"><span class="sheen"></span>
       <div class="lab">market state · ${esc(S.ist_date)}</div>
@@ -626,6 +725,28 @@ function pCommand() {
       <div class="hud"><h2>Confluence clusters <em>report scan</em></h2><div class="pad" id="cl"></div></div>
     </div>
     <div class="stack">
+      <div class="hud holo"><span class="foil"></span><span class="shine"></span><span class="spark"></span>
+        <div class="pad body">
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="k">holo ticket · top setup</div>
+            ${best.grade ? `<span class="badge ${gradeCls(best.grade)}">${esc(best.grade)}</span>` : ""}
+            <span class="k" style="margin-left:auto">${esc(b0.name || "—")}</span>
+          </div>
+          <div class="fsoc" id="holo-title" style="font-size:19px;font-weight:700;margin:9px 0 10px">${esc(holoTitle)}</div>
+          <div class="kv">
+            <div><div class="lab">entry</div><b>${nf(best.entry, 1)}</b></div>
+            <div><div class="lab">stop</div><b class="neg">${nf(best.stop, 1)}</b></div>
+            <div><div class="lab">tp1</div><b class="pos">${nf(best.t1r, 1)}R</b></div>
+            <div><div class="lab">tp2</div><b class="pos">${nf(best.t2r, 1)}R</b></div>
+          </div>
+          <div class="chiprow" style="margin-top:10px">
+            <span class="tag">${esc(best.kind || "—")}</span>
+            <span class="tag">conf ${best.conf ?? "—"}</span>
+            ${best.dist_atr != null ? `<span class="tag${best.dist_atr < 1 ? "" : " x"}">${nf(best.dist_atr, 1)}×ATR away</span>` : ""}
+            ${best.risk_usd != null ? `<span class="tag">$${nf(best.risk_usd, 0)} risk</span>` : ""}
+          </div>
+        </div>
+      </div>
       <div class="hud"><h2>Session clocks</h2><div class="pad ringrow">
         ${ring(kzProg, hot ? sess.killzone + " killzone" : "killzone", hot ? Math.round(kzProg * 100) + "%" : "off", hot ? "elapsed" : "next 20:00 ET", hot ? cssVar("--bad") : cssVar("--faint"), hot)}
         ${ring(nxt && nxt.next_in_s != null ? 1 - Math.min(1, nxt.next_in_s / 1800) : 0, "next cron", nxt ? hms(nxt.next_in_s) : "—", esc(nxt ? nxt.name : ""), cssVar("--alt"))}
@@ -642,7 +763,9 @@ function pCommand() {
       <div class="hud"><h2>Economic wire <em>IST</em></h2><div id="ev"></div></div>
       <div class="hud"><h2>Paper R curve <em>beta stream</em></h2><div class="pad"><div class="chart" style="height:150px"><canvas id="cv-r"></canvas></div></div></div>
     </div>
-  </div>`;
+  </div>
+  <div class="hud" style="margin-top:15px"><h2>Achievements <em>derived from desk state · ${achUn} of ${ach.length} unlocked</em></h2>
+    <div class="pad">${achGrid(ach)}</div></div>`;
 
   $("#pb").innerHTML = (S.playbook || []).map(inst => {
     const setups = (inst.setups || []).map(s => `
@@ -704,7 +827,10 @@ function pCommand() {
       if (rows.length) bullets(b, rows);
     }
   });
-  requestAnimationFrame(() => { magnetize($("#p-command")); flash($("#p-command")); });
+  requestAnimationFrame(() => {
+    wireFX($("#p-command")); flash($("#p-command"));
+    if (window.__lastHolo !== holoTitle) { window.__lastHolo = holoTitle; scramble($("#holo-title"), holoTitle); }
+  });
 }
 const beatWord = s => s == null ? "unknown" : s < 180 ? "healthy" : s < 900 ? "lagging" : "stalled";
 
@@ -937,6 +1063,10 @@ function pJournal() {
   }).join("")}
     </div>
   </div></div>
+  <div class="hud" style="margin-bottom:15px"><h2>Case files <em>shelf · ${(c.rows || []).length} volumes · ${esc(c.day || "")}</em></h2>
+    <div class="pad">${(c.rows || []).length
+      ? `<div class="shelf">${(c.rows || []).map((r, i) => bookCard(r, i, c.day)).join("")}</div>`
+      : '<div class="empty">no calls logged yet today</div>'}</div></div>
   <div class="split">
     <div class="stack">
       <div class="hud"><h2>Calls · ${esc(c.day || "")}</h2><div class="maxh"><table>
@@ -1097,6 +1227,13 @@ function pSystem() {
           <span class="bx"><i style="left:0;width:${pct}%;${stale ? `background:linear-gradient(90deg,${cssVar("--warn")},#E0B45E)` : ""}"></i></span>
           <span class="vl k" style="width:70px" data-k="fresh-${f}" data-v="${Math.round(a)}">${age(a)}</span></div>`;
   }).join("")}
+      </div></div>
+      <div class="hud"><h2>Asset bay <em>images &amp; gifs · board/assets</em></h2><div class="pad">
+        <div class="media">${(S.media || []).map(m => `<div class="mcard">
+            <img src="${esc(m.url)}" alt="${esc(m.name)}" loading="lazy">
+            <div class="cap">${esc(m.name)}<b>${esc(m.kind)} · ${m.kb}kB</b></div></div>`).join("")
+          || '<div class="empty">no assets</div>'}</div>
+        <div class="media-note">the animated <b>scan.gif</b> and the foil/grain textures served here are generated locally by <b>scripts/make-assets.py</b> (stdlib only). Drop any .png / .gif / .jpg / .webp / .svg into board/assets/ and it appears here and inside the snapshot automatically.</div>
       </div></div>
       <div class="hud"><h2>Doctrine <em>constitution</em></h2><div id="s-doc"></div></div>
       <div class="hud"><h2>Wire <em>upcoming · IST</em></h2><div id="s-ev"></div></div>
@@ -1328,6 +1465,26 @@ document.addEventListener("click", e => { const j = e.target.closest("[data-jump
 document.addEventListener("visibilitychange", () => { if (!document.hidden) { DRAWS.length = 0; render(); } });
 $$("nav a").forEach(a => a.onclick = e => { e.preventDefault(); go(a.dataset.p); });
 
+/* floating liquid-glass dock */
+function wireDock() {
+  const d = $("#dock"); if (!d) return;
+  d.addEventListener("click", e => {
+    const b = e.target.closest("[data-act]"); if (!b) return;
+    const a = b.dataset.act;
+    if (a === "pal") palOpen();
+    else if (a === "theme") setTheme(theme() === "dark" ? "light" : "dark");
+    else if (a === "refresh") { tick(true); toast("◈ refetching every topic"); }
+    else if (a === "snapshot") window.open("/snapshot.html", "_blank");
+    else if (a === "top") window.scrollTo({ top: 0, behavior: "smooth" });
+    else if (a === "keys") toast("⌘K palette · 1–7 pages · t theme · r refresh");
+    setTimeout(() => d.querySelectorAll(".di").forEach(x =>
+      x.classList.toggle("act", x.dataset.act === "theme" && theme() === "light")), 30);
+  });
+  d.querySelectorAll(".di").forEach(x =>
+    x.classList.toggle("act", x.dataset.act === "theme" && theme() === "light"));
+  glassFX(d);
+}
+
 async function tick(full = true) {
   await refresh(full ? ["/api/state", "/api/structure", "/api/edge", "/api/flow", "/api/case"] : ["/api/state"]);
   const [m, n] = await Promise.all([fetchJson(SERIES_URL("mgc")), fetchJson(SERIES_URL("nq"))]);
@@ -1341,6 +1498,7 @@ D.page = initPage;
 $$("nav a").forEach(a => a.classList.toggle("on", a.dataset.p === initPage));
 $$(".page").forEach(p => p.classList.toggle("on", p.id === "p-" + initPage));
 $("#themelab").textContent = theme();
+wireDock();
 boot();
 tick(true).then(connect);
 setInterval(tickClock, 1000);          // clocks + freshness + stats: text nodes only

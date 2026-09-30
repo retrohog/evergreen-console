@@ -10,6 +10,38 @@ Binds `127.0.0.1` only. Live updates are **pushed** over Server-Sent Events.
 
 > Screenshots and `snapshot.html` are deliberately gitignored — they capture live desk data.
 
+## v5 additions — glass, foil, badges, books, glyphs
+
+| Piece | Where | What it is |
+|---|---|---|
+| **Liquid glass** | header chips, floating dock, DEDSEC strip | translucent layered panel: 20px blur + saturation, inner top-edge light, refraction ring, and a specular highlight that tracks the pointer (`--mx/--my`) |
+| **Floating dock** | bottom right | 6 liquid-glass buttons with macOS-dock magnification; palette / theme / refresh / snapshot / top / keys |
+| **Holographic ticket** | Command | the top setup as a foil card: pointer drives the rainbow offset, glare angle and a small 3D tilt, with a twinkle layer |
+| **Achievement cards** | Command | 12 badges **computed from desk state** (`/api/state → achievements`): progress bars, bronze/silver/gold tiers, unlock shine. e.g. EDGE KEEPER (book +R over 50+ trades), GUARDRAIL (no cron failure streaks), PROP DISCIPLINE (≤3 calls), NIGHT SHIFT (Asia killzone trades) |
+| **Case-file books** | Journal | every call as a **book cover** — spine, volume, foil wash, editorial title, grade + outcome on the foot |
+| **Glitch typography** | brand, DEDSEC strip, holo title | chromatic-split hover glitch, monospace stencil caps, and a JS **glyph scramble** that resolves into real text |
+| **Asset bay** | System | serves Images/GIFs from `board/assets/`; drop a file in and it appears on the board *and* in the snapshot |
+
+### Generated art (stdlib only)
+
+`assets/` is produced by `scripts/make-assets.py` — no Pillow, no numpy, no network:
+
+```bash
+python3 scripts/make-assets.py
+```
+
+| file | how |
+|---|---|
+| `holo-foil.png` (256×160) | iridescent hue sweep + banded saturation, hand-encoded **PNG** (zlib + CRC chunks) |
+| `grain.png` (128×128) | gaussian grain, same encoder |
+| `scan.gif` (240×90, 8 frames) | hand-written **GIF89a + LZW** encoder; the sweep band stays *inside* the frame so single-frame decoders (ImageIO, thumbnails) still show it |
+| `mask.svg`, `grid.svg` | original vector marks |
+
+Every encoder self-checks on generation: PNGs are re-decoded through zlib, GIF frames round-trip through a matching LZW decoder, and the animation is verified against an **independent** decoder (Apple ImageIO via `sips`) by predicting the band's row and asserting it lands there.
+
+> GIF LZW note: code-size growth is the one ambiguous corner of the format (decoder tables lag the encoder's by one entry and implementations disagree on when to step up). The encoder here **pins the code size** and emits a clear code before the dictionary can overrun it, so every decoder agrees. A "self-consistent" encoder that only round-trips against its own decoder can look perfect while browsers paint nothing — that bug got caught by checking decoded pixels in a real engine, not by the round-trip.
+
+
 ## Run it
 
 ```bash

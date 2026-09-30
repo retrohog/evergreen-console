@@ -61,9 +61,9 @@
         </div>
       </div>
       <div class="hstats">
-        <span class="chip" id="chip-sess"><span class="dot grey"></span><span>—</span></span>
-        <span class="chip" id="fresh"><span class="dot grey"></span><span>boot</span></span>
-        <span class="chip cy" id="streamchip">—</span>
+        <span class="chip lg" id="chip-sess"><span class="frost"></span><span class="spec"></span><span class="dot grey"></span><span>—</span></span>
+        <span class="chip lg" id="fresh"><span class="frost"></span><span class="spec"></span><span class="dot grey"></span><span>boot</span></span>
+        <span class="chip lg cy" id="streamchip"><span class="frost"></span><span class="spec"></span>—</span>
         <button class="themesw" id="themesw" title="switch theme (t)">
           <span id="themelab">dark</span>
           <span class="knob"><b></b></span>
@@ -101,6 +101,16 @@
     <span class="kill" id="kz"></span>
     <span style="margin-left:auto">⌘K palette · 1–7 pages · t theme · r refresh · SSE push · localhost only</span>
   </footer>
+</div>
+
+<div class="dock lg" id="dock">
+  <span class="frost"></span><span class="spec"></span>
+  <button class="di" data-act="pal" data-tip="palette">⌘</button>
+  <button class="di" data-act="theme" data-tip="theme">◐</button>
+  <button class="di" data-act="refresh" data-tip="refresh">⟳</button>
+  <button class="di" data-act="snapshot" data-tip="snapshot file">⤓</button>
+  <button class="di" data-act="top" data-tip="top">↑</button>
+  <button class="di" data-act="keys" data-tip="keys">?</button>
 </div>
 
 <script src="/app.js"></script>
