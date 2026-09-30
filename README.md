@@ -125,14 +125,29 @@ than 500ing the board.
 
 ```bash
 ~/.hermes/scripts/desk-board.sh start && curl -sS 127.0.0.1:8899/health
-node tests/domcheck.mjs                    # headless render audit, all 7 pages
+node tests/domcheck.mjs                    # headless render audit, all 7 pages (live server)
+~/.hermes/scripts/desk-board.sh snapshot && node tests/snapcheck.mjs   # the shared artefact, offline
 ```
 
 `tests/domcheck.mjs` stubs just enough DOM to run `app.js` in Node, renders every page against
 the live server, and fails on: render errors, unbalanced markup (`div`/`table`/`tr` counts), a
-canvas that exists but never got a draw, draw exceptions, or a suspiciously small page. That is
+canvas that exists but never got a draw, draw exceptions, a suspiciously small page, or a v5
+panel that silently vanished (it counts achievement cards, the holo ticket, the DEDSEC strip,
+the book shelf and the asset bay). That is
 how a "half the page didn't load" regression gets caught without screenshots — the footer's
 `renders · tape · draws · drawErr` counters are the same signal in the live UI.
+
+`tests/snapcheck.mjs` goes further: it makes `fetch()` **throw**, feeds `window.__SNAP` straight
+out of the generated file and renders all 7 pages, so the snapshot can't be the one artefact that
+only works while the server is up. It also asserts there are zero `/assets/` references left
+(every image must be a `data:` URI) and zero network calls.
+
+**Images need a pixel-level check, not a 200.** `curl -o /dev/null -w '%{http_code}'` proves the
+file is served, not that it decodes. Two independent decoders are used here: `sips`/ImageIO
+(which converts the GIF's first frame to PNG that is then un-filtered and measured in Python) and
+a browser canvas — asserting a *predicted* value, e.g. that the sweep band lands on the row the
+generator claims. A self-consistent encoder/decoder pair can round-trip perfectly while every
+real decoder paints nothing.
 
 ## Config
 

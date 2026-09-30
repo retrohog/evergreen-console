@@ -533,6 +533,12 @@ footer{border-top:1px solid var(--line);margin:26px auto 0;padding:15px 26px;max
    ============================================================================ */
 
 /* ------------------------------------------------ liquid glass */
+:root{
+  /* asset urls live here once: snapshot inlining rewrites only the definitions,
+     which keeps a 41kB foil texture from being embedded twice */
+  --grain-url:url("/assets/grain.png");
+  --foil-url:url("/assets/holo-foil.png");
+}
 .lg{
   position:relative;isolation:isolate;
   background:
@@ -549,7 +555,7 @@ footer{border-top:1px solid var(--line);margin:26px auto 0;padding:15px 26px;max
     0 0 0 1px color-mix(in srgb, var(--acc) 10%, transparent);
 }
 .lg>.frost{position:absolute;inset:0;pointer-events:none;border-radius:inherit;
-  background-image:url("/assets/grain.png");background-size:128px 128px;opacity:.05;mix-blend-mode:overlay}
+  background-image:var(--grain-url);background-size:128px 128px;opacity:.05;mix-blend-mode:overlay}
 .lg>.spec{position:absolute;inset:0;pointer-events:none;border-radius:inherit;
   background:radial-gradient(240px circle at var(--mx,28%) var(--my,0%), color-mix(in srgb,#fff 60%,transparent), transparent 62%);
   opacity:.45;mix-blend-mode:screen;transition:opacity .3s}
@@ -585,7 +591,7 @@ footer{border-top:1px solid var(--line);margin:26px auto 0;padding:15px 26px;max
 .holo{position:relative;overflow:hidden;transform-style:preserve-3d;
   transition:transform .25s cubic-bezier(.2,.9,.3,1), box-shadow .3s}
 .holo>.foil{position:absolute;inset:-6%;pointer-events:none;z-index:1;
-  background-image:url("/assets/holo-foil.png");background-size:200% 200%;
+  background-image:var(--foil-url);background-size:200% 200%;
   background-position:calc(50% + (var(--hx,50%) - 50%) * .9) calc(50% + (var(--hy,50%) - 50%) * .9);
   mix-blend-mode:color-dodge;opacity:.26;transition:opacity .3s}
 [data-theme="light"] .holo>.foil{mix-blend-mode:multiply;opacity:.30}
@@ -644,7 +650,7 @@ footer{border-top:1px solid var(--line);margin:26px auto 0;padding:15px 26px;max
 .book::before{content:"";position:absolute;left:0;top:0;bottom:0;width:15px;
   background:linear-gradient(90deg, rgba(0,0,0,.55), rgba(0,0,0,.05));border-right:1px solid var(--line)}
 .book::after{content:"";position:absolute;inset:0;pointer-events:none;
-  background-image:url("/assets/grain.png");opacity:.05;mix-blend-mode:overlay}
+  background-image:var(--grain-url);opacity:.05;mix-blend-mode:overlay}
 .book .vol{position:absolute;top:12px;right:12px;font-size:8px;letter-spacing:.22em;color:var(--faint);text-transform:uppercase}
 .book .kicker{font-size:8.5px;letter-spacing:.26em;text-transform:uppercase;color:var(--acc);opacity:.9}
 .book h4{font-family:var(--sans);font-size:16px;line-height:1.15;font-weight:700;letter-spacing:.04em;
@@ -658,7 +664,7 @@ footer{border-top:1px solid var(--line);margin:26px auto 0;padding:15px 26px;max
 .book.win{border-color:color-mix(in srgb,var(--acc) 55%,var(--line-2))}
 .book.loss{border-color:color-mix(in srgb,var(--bad) 55%,var(--line-2))}
 .book .foilbook{position:absolute;inset:0;opacity:.16;pointer-events:none;
-  background-image:url("/assets/holo-foil.png");background-size:170% 170%;mix-blend-mode:color-dodge}
+  background-image:var(--foil-url);background-size:170% 170%;mix-blend-mode:color-dodge}
 [data-theme="light"] .book .foilbook{mix-blend-mode:multiply;opacity:.22}
 
 /* ------------------------------------------------ glitch / terminal typography */
