@@ -89,6 +89,19 @@ stream, and the header shows `push · Ns` vs `poll` so you always know which mod
 Payload collectors are 4s-cached; a failing collector returns `{"error": …}` with HTTP 200 rather
 than 500ing the board.
 
+## Verify before declaring done
+
+```bash
+~/.hermes/scripts/desk-board.sh start && curl -sS 127.0.0.1:8899/health
+node tests/domcheck.mjs                    # headless render audit, all 7 pages
+```
+
+`tests/domcheck.mjs` stubs just enough DOM to run `app.js` in Node, renders every page against
+the live server, and fails on: render errors, unbalanced markup (`div`/`table`/`tr` counts), a
+canvas that exists but never got a draw, draw exceptions, or a suspiciously small page. That is
+how a "half the page didn't load" regression gets caught without screenshots — the footer's
+`renders · tape · draws · drawErr` counters are the same signal in the live UI.
+
 ## Config
 
 `DESK_DIR` (default `~/workspace/desk`), `HERMES_HOME` (default `~/.hermes`), `BOARD_PORT`,

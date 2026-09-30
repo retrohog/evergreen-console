@@ -398,6 +398,7 @@ main{max-width:1780px;margin:0 auto;padding:20px 26px 84px}
 .led.run{background:var(--warn);animation:pulse 1.2s infinite}
 .led.bad{background:var(--bad);box-shadow:0 0 8px color-mix(in srgb,var(--bad) 45%,transparent)}
 .gear{display:grid;grid-template-columns:158px repeat(24,minmax(0,1fr));gap:3px;align-items:center;min-width:780px}
+.gear-wrap{overflow-x:auto;padding-bottom:4px}
 .gear .jn{font-size:9.5px;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ledcell{height:14px;display:flex;align-items:center;justify-content:center}
 .ledcell .led{width:8px;height:8px}

@@ -17,7 +17,8 @@ const TF_LABEL = { "1": "1m", "3": "3m", "5": "5m", "15": "15m", "30": "30m", "6
 const PAGES = ["command", "case", "structure", "edge", "journal", "flow", "system"];
 const SERIES_URL = (k, n = 180) => `/api/series?key=${k}&tf=5&n=${n}`;
 const D = { state: null, structure: null, edge: null, flow: null, case: null, series: {}, page: "command", last: {}, conn: "boot", topics: [], pushAge: 0, lastFetch: 0 };
-const S_ = { renders: 0, tapeWrites: 0, refetch: 0, pushes: 0 };   // instrumentation, surfaced in the footer
+const S_ = { renders: 0, tapeWrites: 0, refetch: 0, pushes: 0, draws: 0, drawErr: 0 };   // instrumentation, surfaced in the footer
+globalThis.__stats = S_;                 // also read by tests/domcheck.mjs
 
 /* ---------------------------------------------------------------- theme */
 function setTheme(t, announce = true) {
@@ -125,9 +126,9 @@ function gridlines(x, w, h, pad, n = 4) {
   const t = T(); x.strokeStyle = t.line; x.lineWidth = 1;
   for (let i = 0; i <= n; i++) { const y = pad.t + (h - pad.t - pad.b) * i / n; x.beginPath(); x.moveTo(pad.l, y); x.lineTo(w - pad.r, y); x.stroke(); }
 }
-const DRAWS = [];                                    // canvas repaint registry (theme switch)
+const DRAWS = [];                                    // canvas repaint registry (theme switch / resize)
 const onDraw = fn => DRAWS.push(fn);
-function drawAll() { DRAWS.length = 0; requestAnimationFrame(() => render()); }
+function drawAll() { requestAnimationFrame(() => render()); }
 
 /* ---------------------------------------------------------------- charts */
 function lineChart(cv, pts, { key = "cum", color = null, fill = true, yFmt = v => nf(v, 1), lbl = p => String(p.when || "").slice(5, 10) } = {}) {
@@ -1019,11 +1020,11 @@ function pFlow() {
         </div>`).join("")}
       </div></div></div>
       <div class="hud"><h2>Run LED matrix <em>job × hour · last ${heat.hours}h</em></h2><div class="pad">
-        <div class="gear"><div></div>
+        <div class="gear-wrap"><div class="gear"><div></div>
           ${Array.from({ length: heat.hours }, (_, i) => `<div class="hd">${heat.hours - 1 - i === 0 ? "now" : heat.hours - 1 - i}</div>`).join("")}
           ${(heat.order || []).map(job => `<div class="jn">${esc(job)}</div>` +
     Array.from({ length: heat.hours }, (_, i) => cell(job, heat.hours - 1 - i)).join("")).join("")}
-        </div>
+        </div></div>
         <div class="legend"><span><s style="background:var(--acc)"></s>completed</span>
           <span><s style="background:var(--warn)"></s>running</span><span><s style="background:var(--bad)"></s>error</span>
           <span>off = no run · columns = hours ago</span></div>
@@ -1165,7 +1166,7 @@ function tickClock() {
   if (sc) sc.textContent = txt;
   if (sc2) sc2.textContent = txt;
   const st = $("#stats");
-  if (st) st.textContent = `renders ${S_.renders} · tape ${S_.tapeWrites} · refetch ${S_.refetch} · push ${S_.pushes} · ${theme()}`;
+  if (st) st.textContent = `renders ${S_.renders} · tape ${S_.tapeWrites} · draws ${S_.draws}${S_.drawErr ? ` · drawErr ${S_.drawErr}` : ""} · refetch ${S_.refetch} · push ${S_.pushes} · ${theme()}`;
 }
 function tickCountdowns() {
   $$("[data-nx]").forEach(tr => {
@@ -1179,6 +1180,7 @@ function tickCountdowns() {
 }
 function render() {
   S_.renders++;
+  DRAWS.length = 0;                     // page renderers re-register their canvas draws
   const fn = ({ command: pCommand, case: pCase, structure: pStructure, edge: pEdge, journal: pJournal, flow: pFlow, system: pSystem })[D.page];
   header();
   try { fn(); } catch (e) {
@@ -1186,6 +1188,19 @@ function render() {
     if (el) el.innerHTML = `<div class="hud"><div class="pad"><div class="k" style="color:var(--bad)">render error · ${esc(D.page)}</div>
       <pre>${esc((e && (e.stack || e.message)) || String(e))}</pre></div></div>`;
   }
+  /* RUN the registered canvas draws — without this every chart stays blank */
+  const draws = DRAWS.slice();
+  requestAnimationFrame(() => {
+    draws.forEach(f => {
+      try { f(); S_.draws++; }
+      catch (e) {
+        S_.drawErr++;
+        const g = document.getElementById("gen");
+        if (g) g.textContent = `draw error: ${(e && e.message) || e}`;
+      }
+    });
+    tickClock();
+  });
   tickClock();
 }
 addEventListener("error", e => {
