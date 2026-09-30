@@ -1,0 +1,2 @@
+{"rec_id": "D1", "event": "trailed", "final": true, "key": "mgc", "bias": "short", "kind": "FVG", "grade": "A", "zone": [4236.4, 4239.4], "entry": 4236.4, "stop": 4241.4, "tp1": 4231.4, "tp2": 4226.4, "risk": 5.5, "r": 1.02, "session": "ny", "hour_et": 10}
+{"rec_id": "D2", "event": "stopped", "final": true, "key": "nq", "bias": "long", "kind": "OB", "grade": "B+", "zone": [30534.0, 30594.0], "entry": 30594.0, "stop": 30549.0, "tp1": 30654.0, "tp2": 30754.0, "risk": 45, "r": -1.0, "session": "asia", "hour_et": 22}

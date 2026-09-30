@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Evergreen Investigation Console · The Daily Bias</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230F4633'/%3E%3Cpath d='M16 6l8 10-8 10-8-10z' fill='%23A8D5B0'/%3E%3C/svg%3E" />
+<link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+
+<div class="fx">
+  <div class="base"></div>
+  <div class="sun"></div>
+  <div class="contour"></div>
+  <div class="canopy c1"></div><div class="canopy c2"></div><div class="canopy c3"></div>
+  <div class="mote" style="left:14vw;animation-delay:-2s"></div>
+  <div class="mote" style="left:32vw;animation-delay:-9s"></div>
+  <div class="mote" style="left:58vw;animation-delay:-15s"></div>
+  <div class="mote" style="left:76vw;animation-delay:-6s"></div>
+  <div class="mote" style="left:88vw;animation-delay:-19s"></div>
+  <div class="grain"></div>
+</div>
+
+<div id="boot"><div class="inner">
+  <div class="mark"></div>
+  <div class="name">Evergreen Console</div>
+  <div class="log"></div>
+  <div class="bar"><i></i></div>
+</div></div>
+
+<div id="pal"><div class="box">
+  <input type="text" placeholder="jump to a page, instrument, agent or action…" />
+  <div class="res"></div>
+  <div class="hintbar">↑↓ navigate · ⏎ run · esc close · ⌘K toggles · 1–7 pages · r refresh</div>
+</div></div>
+
+<div class="shell">
+  <header class="top">
+    <div class="top-in">
+      <div class="brand">
+        <div class="sigil"><i></i><b></b></div>
+        <div><h1>The Daily Bias · Investigation Console</h1><p id="date">—</p></div>
+      </div>
+      <div class="hstats">
+        <span class="chip" id="chip-sess"><span class="dot grey"></span><span>—</span></span>
+        <span class="chip" id="fresh"><span class="dot grey"></span><span>boot</span></span>
+        <span class="chip cy" id="streamchip">—</span>
+        <div class="clock"><span>IST</span><b id="ist">--:--:--</b></div>
+        <div class="clock et"><span>ET</span><b id="et">--:--:--</b></div>
+      </div>
+    </div>
+    <nav>
+      <a data-p="command" class="on" href="#command"><i>01</i>Command</a>
+      <a data-p="case" href="#case"><i>02</i>Case File</a>
+      <a data-p="structure" href="#structure"><i>03</i>Structure</a>
+      <a data-p="edge" href="#edge"><i>04</i>Edge Lab</a>
+      <a data-p="journal" href="#journal"><i>05</i>Journal</a>
+      <a data-p="flow" href="#flow"><i>06</i>Flow</a>
+      <a data-p="system" href="#system"><i>07</i>System</a>
+    </nav>
+  </header>
+
+  <div class="tape"><div class="inner" id="tape"></div></div>
+
+  <main>
+    <section class="page on" id="p-command"></section>
+    <section class="page" id="p-case"></section>
+    <section class="page" id="p-structure"></section>
+    <section class="page" id="p-edge"></section>
+    <section class="page" id="p-journal"></section>
+    <section class="page" id="p-flow"></section>
+    <section class="page" id="p-system"></section>
+  </main>
+
+  <footer>
+    <span id="gen">—</span>
+    <span class="kill" id="kz"></span>
+    <span style="margin-left:auto">⌘K palette · 1–7 pages · r refresh · live push via SSE · reads ~/workspace/desk state · localhost only</span>
+  </footer>
+</div>
+
+<script src="/app.js"></script>
+</body>
+</html>

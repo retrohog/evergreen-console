@@ -1,0 +1,206 @@
+[
+ {
+  "key": "nq",
+  "kind": "FVG",
+  "grade": "A",
+  "bias": "short",
+  "when": "2026-08-06 10:00",
+  "r": 0.6,
+  "mfe": 2.48,
+  "mae": 0.57,
+  "risk_pts": 18.18,
+  "entry": 4264.25,
+  "zone": [
+   4100,
+   4120
+  ],
+  "conf": 4
+ },
+ {
+  "key": "mgc",
+  "kind": "OB",
+  "grade": "A+",
+  "bias": "long",
+  "when": "2026-08-07 11:00",
+  "r": 1.4,
+  "mfe": 1.14,
+  "mae": 0.17,
+  "risk_pts": 76.95,
+  "entry": 4107.5,
+  "zone": [
+   4100,
+   4120
+  ],
+  "conf": 4
+ },
+ {
+  "key": "nq",
+  "kind": "BB",
+  "grade": "B+",
+  "bias": "short",
+  "when": "2026-08-08 12:00",
+  "r": -1.0,
+  "mfe": 1.26,
+  "mae": 0.39,
+  "risk_pts": 82.53,
+  "entry": 4111.82,
+  "zone": [
+   4100,
+   4120
+  ],
+  "conf": 4
+ },
+ {
+  "key": "mgc",
+  "kind": "FVG",
+  "grade": "A",
+  "bias": "long",
+  "when": "2026-08-09 13:00",
+  "r": -1.0,
+  "mfe": 0.58,
+  "mae": 0.37,
+  "risk_pts": 92.31,
+  "entry": 4289.54,
+  "zone": [
+   4100,
+   4120
+  ],
+  "conf": 4
+ },
+ {
+  "key": "nq",
+  "kind": "OB",
+  "grade": "A+",
+  "bias": "short",
+  "when": "2026-08-10 14:00",
+  "r": -1.0,
+  "mfe": 1.65,
+  "mae": 0.16,
+  "risk_pts": 40.3,
+  "entry": 4211.33,
+  "zone": [
+   4100,
+   4120
+  ],
+  "conf": 4
+ },
+ {
+  "key": "mgc",
+  "kind": "BB",
+  "grade": "B+",
+  "bias": "long",
+  "when": "2026-08-11 15:00",
+  "r": 1.0,
+  "mfe": 0.97,
+  "mae": 0.27,
+  "risk_pts": 27.08,
+  "entry": 4161.7,
+  "zone": [
+   4100,
+   4120
+  ],
+  "conf": 4
+ },
+ {
+  "key": "nq",
+  "kind": "FVG",
+  "grade": "A",
+  "bias": "short",
+  "when": "2026-08-12 16:00",
+  "r": 2.1,
+  "mfe": 0.72,
+  "mae": 0.8,
+  "risk_pts": 93.78,
+  "entry": 4174.48,
+  "zone": [
+   4100,
+   4120
+  ],
+  "conf": 4
+ },
+ {
+  "key": "mgc",
+  "kind": "OB",
+  "grade": "A+",
+  "bias": "long",
+  "when": "2026-08-13 17:00",
+  "r": -1.0,
+  "mfe": 1.94,
+  "mae": 0.78,
+  "risk_pts": 91.23,
+  "entry": 4199.28,
+  "zone": [
+   4100,
+   4120
+  ],
+  "conf": 4
+ },
+ {
+  "key": "nq",
+  "kind": "BB",
+  "grade": "B+",
+  "bias": "short",
+  "when": "2026-08-14 18:00",
+  "r": -1.0,
+  "mfe": 1.28,
+  "mae": 0.48,
+  "risk_pts": 86.95,
+  "entry": 4190.64,
+  "zone": [
+   4100,
+   4120
+  ],
+  "conf": 4
+ },
+ {
+  "key": "mgc",
+  "kind": "FVG",
+  "grade": "A",
+  "bias": "long",
+  "when": "2026-08-15 10:00",
+  "r": 0.6,
+  "mfe": 0.87,
+  "mae": 0.32,
+  "risk_pts": 111.82,
+  "entry": 4116.37,
+  "zone": [
+   4100,
+   4120
+  ],
+  "conf": 4
+ },
+ {
+  "key": "nq",
+  "kind": "OB",
+  "grade": "A+",
+  "bias": "short",
+  "when": "2026-08-16 11:00",
+  "r": 0.6,
+  "mfe": 1.51,
+  "mae": 1.15,
+  "risk_pts": 105.37,
+  "entry": 4157.59,
+  "zone": [
+   4100,
+   4120
+  ],
+  "conf": 4
+ },
+ {
+  "key": "mgc",
+  "kind": "BB",
+  "grade": "B+",
+  "bias": "long",
+  "when": "2026-08-17 12:00",
+  "r": 1.4,
+  "mfe": 0.57,
+  "mae": 0.6,
+  "risk_pts": 108.91,
+  "entry": 4130.4,
+  "zone": [
+   4100,
+   4120
+  ],
+  "conf": 4
+ }
+]

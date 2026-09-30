@@ -1,0 +1,2 @@
+{"job": "MGC-0929-01", "key": "mgc", "entry": 4228.4, "stop": 4239.4, "outcome": "win", "note": "auto: TP1 then BE", "when": "09-29 14:10", "grade": "A", "score": 11, "why": ["HTF 2/3"]}
+{"job": "NQ-0929-04", "key": "nq", "entry": 30654.0, "stop": 30614.0, "outcome": "missed", "note": "demoted to idea - never filled", "when": "09-29 16:40", "grade": "C", "score": 7, "why": ["mid-range"]}

@@ -1,0 +1,171 @@
+{
+ "mgc": {
+  "spot": 4216.4,
+  "bias": "short",
+  "vol": [
+   1.1,
+   "normal"
+  ],
+  "setups": [
+   {
+    "key": "mgc",
+    "name": "MGC",
+    "bias": "short",
+    "kind": "FVG",
+    "zone": [
+     4236.4,
+     4239.4
+    ],
+    "entry": 4236.4,
+    "stop": 4253.4,
+    "risk": 17.0,
+    "risk_usd": 170,
+    "spot": 4216.4,
+    "du": 1.2,
+    "conf": 2,
+    "vote": 5,
+    "vote_detail": [
+     "reachable +1",
+     "VA edge +1",
+     "premium/disc +1"
+    ],
+    "tps": [
+     {
+      "price": 4221.4,
+      "conf": 2,
+      "sources": [
+       "prior close"
+      ]
+     },
+     {
+      "price": 4181.4,
+      "conf": 3,
+      "sources": [
+       "15m-FVG-B",
+       "1H-OB-B"
+      ]
+     }
+    ],
+    "score": 9,
+    "raw": 11,
+    "penalty": 2,
+    "grade": "B+",
+    "why": [
+     "HTF 2/3",
+     "conf 2",
+     "VA edge",
+     "17.4pt (1.3xATR) away",
+     "TP2 3.2R",
+     "3 targets",
+     "thin session"
+    ],
+    "t1r": 1.2,
+    "t2r": 3.2
+   },
+   {
+    "key": "mgc",
+    "name": "MGC",
+    "bias": "short",
+    "kind": "OB",
+    "zone": [
+     4286.4,
+     4296.4
+    ],
+    "entry": 4286.4,
+    "stop": 4304.4,
+    "risk": 18.0,
+    "risk_usd": 180,
+    "spot": 4216.4,
+    "du": 5.4,
+    "conf": 2,
+    "vote": 4,
+    "vote_detail": [
+     "OB +1"
+    ],
+    "tps": [
+     {
+      "price": 4216.4,
+      "conf": 2,
+      "sources": [
+       "session high"
+      ]
+     }
+    ],
+    "score": 6,
+    "raw": 7,
+    "penalty": 1,
+    "grade": "C",
+    "why": [
+     "HTF 2/3",
+     "mid-range",
+     "73pt (5.5xATR) away",
+     "OUT OF RANGE - not actionable now"
+    ],
+    "t1r": 4.1,
+    "t2r": 6.4
+   }
+  ]
+ },
+ "nq": {
+  "spot": 30714.0,
+  "bias": "long",
+  "vol": [
+   0.9,
+   "normal"
+  ],
+  "setups": [
+   {
+    "key": "nq",
+    "name": "NQ",
+    "bias": "long",
+    "kind": "FVG",
+    "zone": [
+     30534.0,
+     30594.0
+    ],
+    "entry": 30594.0,
+    "stop": 30549.0,
+    "risk": 45.0,
+    "risk_usd": 90,
+    "spot": 30714.0,
+    "du": 6.1,
+    "conf": 4,
+    "vote": 5,
+    "vote_detail": [
+     "VA edge +1",
+     "discount +1"
+    ],
+    "tps": [
+     {
+      "price": 30654.0,
+      "conf": 2,
+      "sources": [
+       "15m-FVG-B"
+      ]
+     },
+     {
+      "price": 30754.0,
+      "conf": 3,
+      "sources": [
+       "1H-FVG-B"
+      ]
+     }
+    ],
+    "score": 8,
+    "raw": 9,
+    "penalty": 1,
+    "grade": "B+",
+    "why": [
+     "HTF 2/3",
+     "conf 4",
+     "VA edge",
+     "104pt (6.1xATR) away",
+     "TP2 3.8R",
+     "OUT OF RANGE - not actionable now"
+    ],
+    "t1r": 2.5,
+    "t2r": 3.8
+   }
+  ]
+ }
+}

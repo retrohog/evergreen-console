@@ -1,0 +1,129 @@
+{
+ "jobs": [
+  {
+   "job": "MGC-0929-01",
+   "key": "mgc",
+   "day": "2026-09-29",
+   "grade": "A",
+   "score": 10,
+   "bias": "short",
+   "zone": [
+    4228.4,
+    4236.4
+   ],
+   "entry": 4228.4,
+   "stop": 4239.4,
+   "risk": 11,
+   "tps": [
+    4216.4,
+    4188.4
+   ],
+   "why": [
+    "HTF 2/3",
+    "VA edge"
+   ],
+   "alerted": true,
+   "penalty": 0
+  },
+  {
+   "job": "MGC-0929-02",
+   "key": "mgc",
+   "day": "2026-09-29",
+   "grade": "B+",
+   "score": 9,
+   "bias": "short",
+   "zone": [
+    4228.4,
+    4236.4
+   ],
+   "entry": 4228.4,
+   "stop": 4239.4,
+   "risk": 11,
+   "tps": [
+    4216.4,
+    4188.4
+   ],
+   "why": [
+    "HTF 2/3",
+    "VA edge"
+   ],
+   "alerted": true,
+   "penalty": 0
+  },
+  {
+   "job": "MGC-0929-03",
+   "key": "mgc",
+   "day": "2026-09-29",
+   "grade": "C",
+   "score": 8,
+   "bias": "short",
+   "zone": [
+    4228.4,
+    4236.4
+   ],
+   "entry": 4228.4,
+   "stop": 4239.4,
+   "risk": 11,
+   "tps": [
+    4216.4,
+    4188.4
+   ],
+   "why": [
+    "HTF 2/3",
+    "VA edge"
+   ],
+   "alerted": true,
+   "penalty": 0
+  },
+  {
+   "job": "NQ-0929-04",
+   "key": "nq",
+   "day": "2026-09-29",
+   "grade": "C",
+   "score": 7,
+   "bias": "long",
+   "zone": [
+    30654.0,
+    30646.0
+   ],
+   "entry": 30654.0,
+   "stop": 30614.0,
+   "risk": 40,
+   "tps": [
+    30666.0,
+    30694.0
+   ],
+   "why": [
+    "HTF 2/3",
+    "VA edge"
+   ],
+   "alerted": true,
+   "penalty": 0
+  },
+  {
+   "job": "NQ-0929-05",
+   "key": "nq",
+   "day": "2026-09-29",
+   "grade": "A",
+   "score": 6,
+   "bias": "long",
+   "zone": [
+    30654.0,
+    30646.0
+   ],
+   "entry": 30654.0,
+   "stop": 30614.0,
+   "risk": 40,
+   "tps": [
+    30666.0,
+    30694.0
+   ],
+   "why": [
+    "HTF 2/3",
+    "VA edge"
+   ],
+   "alerted": true,
+   "penalty": 0
+  }
+ ]
+}

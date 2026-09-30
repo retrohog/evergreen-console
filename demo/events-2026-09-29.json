@@ -1,0 +1,14 @@
+{
+ "fetched_at": "2026-09-29T20:01:00-04:00",
+ "events": [
+  {
+   "et": "21:30",
+   "min": 1290,
+   "title": "NBS Manufacturing PMI",
+   "cur": "CNY",
+   "impact": "HIGH",
+   "forecast": 50.1,
+   "previous": 49.8
+  }
+ ]
+}

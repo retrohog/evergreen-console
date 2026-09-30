@@ -1,0 +1,14 @@
+# macOS / editor noise
+.DS_Store
+__pycache__/
+*.pyc
+*.bak
+*.swp
+
+# point-in-time artefacts (contain live desk data — never publish)
+snapshot.html
+preview.png
+
+# local runtime
+*.log
+.pid
